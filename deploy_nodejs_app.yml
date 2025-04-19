@@ -1,0 +1,6 @@
+- name: Deploy Node.js app from private registry
+  hosts: appservers
+  become: true
+
+  roles:
+    - deploy_nodejs_app

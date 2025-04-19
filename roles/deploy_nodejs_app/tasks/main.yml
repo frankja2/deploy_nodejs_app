@@ -1,0 +1,26 @@
+- name: (Optional) Docker login to private registry
+  docker_login:
+    registry_url: "{{ app_image.split(':')[0] }}"
+    username: "{{ registry_username }}"
+    password: "{{ registry_password }}"
+  when: registry_username != ""
+
+- name: Pull app image
+  community.docker.docker_image:
+    name: "{{ app_image }}"
+    source: pull
+
+- name: Stop existing container if running
+  community.docker.docker_container:
+    name: "{{ app_name }}"
+    state: absent
+    force_kill: true
+    timeout: 10
+
+- name: Run new container
+  community.docker.docker_container:
+    name: "{{ app_name }}"
+    image: "{{ app_image }}"
+    restart_policy: unless-stopped
+    published_ports:
+      - "{{ app_port }}:4000"
